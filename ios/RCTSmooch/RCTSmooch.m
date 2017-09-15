@@ -1,5 +1,4 @@
 #import "RCTSmooch.h"
-#import <Smooch/Smooch.h>
 
 @implementation SmoochManager
 
@@ -9,6 +8,7 @@ RCT_EXPORT_METHOD(init:(NSString*)appToken:(RCTResponseSenderBlock)callback) {
   NSLog(@"Init Smooch");
 
   [Smooch initWithSettings: [SKTSettings settingsWithAppToken:appToken]];
+  [Smooch conversation].delegate = self;
   callback(@[]);
 };
 
@@ -103,6 +103,27 @@ RCT_EXPORT_METHOD(setSignedUpAt:(NSDate*)date) {
 
   [SKTUser currentUser].signedUpAt = date;
 };
+
+-(nullable SKTMessage *)conversation:(SKTConversation*)conversation willDisplayMessage:(SKTMessage *)message {
+    NSError *error = NULL;
+    NSRegularExpression *regex = [NSRegularExpression
+                                  regularExpressionWithPattern:@"^@@@"
+                                  options:0
+                                  error:&error];
+    
+    
+    NSUInteger numberOfMatches = [regex numberOfMatchesInString:message.text
+                                                        options:0
+                                                          range:NSMakeRange(0, [message.text length])];
+    
+    
+    if (numberOfMatches > 0) {
+        return nil;
+    } else {
+        return message;
+    }
+};
+
 
 
 @end
