@@ -104,26 +104,29 @@ RCT_EXPORT_METHOD(setSignedUpAt:(NSDate*)date) {
   [SKTUser currentUser].signedUpAt = date;
 };
 
+RCT_EXPORT_METHOD(sendMessage:(NSString*)message) {
+    NSLog(@"Smooch sendMessage");
+
+    [[Smooch conversation] sendMessage:[[SKTMessage alloc] initWithText:message]];
+};
+
 -(nullable SKTMessage *)conversation:(SKTConversation*)conversation willDisplayMessage:(SKTMessage *)message {
     NSError *error = NULL;
     NSRegularExpression *regex = [NSRegularExpression
                                   regularExpressionWithPattern:@"^@@@"
                                   options:0
                                   error:&error];
-    
-    
-    NSUInteger numberOfMatches = [regex numberOfMatchesInString:message.text
-                                                        options:0
-                                                          range:NSMakeRange(0, [message.text length])];
-    
-    
+
+    NSUInteger numberOfMatches = [regex
+                                  numberOfMatchesInString:message.text
+                                  options:0
+                                  range:NSMakeRange(0, [message.text length])];
+
     if (numberOfMatches > 0) {
         return nil;
     } else {
         return message;
     }
 };
-
-
 
 @end
