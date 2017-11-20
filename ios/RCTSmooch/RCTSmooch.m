@@ -20,39 +20,19 @@ RCT_EXPORT_METHOD(show) {
   });
 };
 
-RCT_EXPORT_METHOD(login:(NSString*)userId jwt:(NSString*)jwt resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+RCT_EXPORT_METHOD(login:(NSString*)userId jwt:(NSString*)jwt) {
   NSLog(@"Smooch Login");
 
   dispatch_async(dispatch_get_main_queue(), ^{
-      [Smooch login:userId jwt:jwt completionHandler:^(NSError * _Nullable error, NSDictionary * _Nullable userInfo) {
-          if (error) {
-              reject(
-                 userInfo[SKTErrorCodeIdentifier],
-                 userInfo[SKTErrorDescriptionIdentifier],
-                 error);
-          }
-          else {
-              resolve(userInfo);
-          }
-      }];
+    [Smooch login:userId jwt:jwt];
   });
 };
 
-RCT_EXPORT_METHOD(logout:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+RCT_EXPORT_METHOD(logout) {
   NSLog(@"Smooch Logout");
 
   dispatch_async(dispatch_get_main_queue(), ^{
-      [Smooch logoutWithCompletionHandler:^(NSError * _Nullable error, NSDictionary * _Nullable userInfo) {
-          if (error) {
-              reject(
-                     userInfo[SKTErrorCodeIdentifier],
-                     userInfo[SKTErrorDescriptionIdentifier],
-                     error);
-          }
-          else {
-              resolve(userInfo);
-          }
-      }];
+    [Smooch logout];
   });
 };
 
@@ -63,11 +43,10 @@ RCT_EXPORT_METHOD(setUserProperties:(NSDictionary*)options) {
   [[SKTUser currentUser] addProperties:options];
 };
 
-RCT_EXPORT_METHOD(getUserId:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject) {
-  NSLog(@"Smooch getUserId");
+RCT_EXPORT_METHOD(track:(NSString*)eventName) {
+  NSLog(@"Smooch track with %@", eventName);
 
-  resolve([SKTUser currentUser].userId);
+  [Smooch track:eventName];
 };
 
 RCT_REMAP_METHOD(getUnreadCount,
