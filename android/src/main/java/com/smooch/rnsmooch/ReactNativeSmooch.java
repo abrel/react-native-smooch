@@ -16,9 +16,16 @@ import java.util.Map;
 import io.smooch.core.Smooch;
 import io.smooch.core.SmoochCallback;
 import io.smooch.core.User;
+import io.smooch.core.Conversation;
+import io.smooch.core.Message;
 import io.smooch.ui.ConversationActivity;
 
-public class ReactNativeSmooch extends ReactContextBaseJavaModule {
+import android.util.Log;
+
+public class ReactNativeSmooch
+    extends ReactContextBaseJavaModule
+    implements Conversation.MessageModifierDelegate {
+
     @Override
     public String getName() {
         return "SmoochManager";
@@ -26,6 +33,7 @@ public class ReactNativeSmooch extends ReactContextBaseJavaModule {
 
     public ReactNativeSmooch(ReactApplicationContext reactContext) {
         super(reactContext);
+        Smooch.getConversation().setMessageModifierDelegate(this);
     }
 
     @ReactMethod
@@ -110,4 +118,27 @@ public class ReactNativeSmooch extends ReactContextBaseJavaModule {
         return userProperties;
     }
 
+    // Conversation delegates
+    @Override
+    public Message beforeSend(Message message) {
+      return message;
+    }
+
+    @Override
+    public Message beforeNotification(Message message) {
+      if (message.getText().startsWith("@@@")) {
+        return null;
+      }
+
+      return message;
+    }
+
+    @Override
+    public Message beforeDisplay(Message message) {
+      if (message.getText().startsWith("@@@")) {
+        return null;
+      }
+
+      return message;
+    }
 }
