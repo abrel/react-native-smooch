@@ -118,6 +118,12 @@ public class ReactNativeSmooch
         return userProperties;
     }
 
+    @ReactMethod
+    public void sendMessage(String messageText) {
+      Message message = new Message(messageText, null, null);
+      Smooch.getConversation().sendMessage(message);
+    }
+
     // Conversation delegates
     @Override
     public Message beforeSend(Message message) {
