@@ -90,6 +90,11 @@ RCT_EXPORT_METHOD(sendMessage:(NSString*)message) {
 };
 
 -(nullable SKTMessage *)conversation:(SKTConversation*)conversation willDisplayMessage:(SKTMessage *)message {
+    if (!message.text) {
+        // do not touch photos
+        return message;
+    }
+
     NSError *error = NULL;
     NSRegularExpression *regex = [NSRegularExpression
                                   regularExpressionWithPattern:@"^@@@"
