@@ -18,6 +18,7 @@ import io.smooch.core.SmoochCallback;
 import io.smooch.core.User;
 import io.smooch.core.Conversation;
 import io.smooch.core.Message;
+import io.smooch.core.FcmService;
 import io.smooch.ui.ConversationActivity;
 
 import android.util.Log;
@@ -26,6 +27,8 @@ public class ReactNativeSmooch
     extends ReactContextBaseJavaModule
     implements Conversation.MessageModifierDelegate {
 
+    private ReactApplicationContext mContext;
+
     @Override
     public String getName() {
         return "SmoochManager";
@@ -33,7 +36,13 @@ public class ReactNativeSmooch
 
     public ReactNativeSmooch(ReactApplicationContext reactContext) {
         super(reactContext);
+        mContext = reactContext;
         Smooch.getConversation().setMessageModifierDelegate(this);
+    }
+
+    @ReactMethod
+    public void triggerSmoochNotification(ReadableMap data) {
+        FcmService.triggerSmoochNotification(data.toHashMap(), mContext);
     }
 
     @ReactMethod
