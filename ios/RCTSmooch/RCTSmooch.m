@@ -4,12 +4,13 @@
 
 RCT_EXPORT_MODULE();
 
-RCT_EXPORT_METHOD(init:(NSString*)appToken:(RCTResponseSenderBlock)callback) {
+RCT_EXPORT_METHOD(init:(NSString*)appId:(RCTResponseSenderBlock)callback) {
   NSLog(@"Init Smooch");
-
-  [Smooch initWithSettings: [SKTSettings settingsWithAppToken:appToken]];
-  [Smooch conversation].delegate = self;
-  callback(@[]);
+  [Smooch destroy];
+  [Smooch initWithSettings:[SKTSettings settingsWithAppId:appId] completionHandler:^(NSError * _Nullable error, NSDictionary * _Nullable userInfo) {
+    [Smooch conversation].delegate = self;
+    callback(@[]);
+  }];
 };
 
 RCT_EXPORT_METHOD(show) {
