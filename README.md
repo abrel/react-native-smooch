@@ -42,7 +42,7 @@ Link it! `react-native link react-native-smooch`
 
  * Without CocoaPods, you can add Smooch by navigating to your React Native project's `ios` directory and following [the manual steps here](http://docs.smooch.io/ios/#adding-smooch-to-your-app).
 
- * Open your project's .xcworkspace file in XCode and initialize Smooch with your app token inside of applicationDidFinishLaunchingWithOptions.
+ * Open your project's .xcworkspace file in XCode and initialize Smooch with your app id inside of applicationDidFinishLaunchingWithOptions.
 
 ```
 #import <Smooch/Smooch.h>
@@ -51,8 +51,9 @@ Link it! `react-native link react-native-smooch`
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Initialize Smooch - these instructions are also available on [app.smooch.io](https://app.smooch.io)
-    [Smooch initWithSettings:
-        [SKTSettings settingsWithAppToken:@"YOUR APP TOKEN GOES HERE"]];
+    [Smooch initWithSettings:[SKTSettings settingsWithAppId:@"YOUR_APP_ID"] completionHandler:^(NSError * _Nullable error, NSDictionary * _Nullable userInfo) {
+        // Your code after init is complete
+    }];
 }
 ```
 
@@ -76,7 +77,9 @@ protected List<ReactPackage> getPackages() {
 * Add `Smooch.init` to the `onCreate` method of your `Application` class.
 
 ```java
+import io.smooch.core.Settings;
 import io.smooch.core.Smooch;
+import io.smooch.core.SmoochCallback;
 import com.facebook.soloader.SoLoader;
 
 public class MainApplication extends Application implements ReactApplication {
@@ -85,7 +88,12 @@ public class MainApplication extends Application implements ReactApplication {
     public void onCreate() {
         super.onCreate();
         SoLoader.init(this, /* native exopackage */ false);
-        Smooch.init(this, "<your-smooch-app-token>");
+        Smooch.init(this, new Settings("YOUR_APP_ID"), new SmoochCallback() {
+            @Override
+            public void run(Response response) {
+                // Your code after init is complete
+            }
+        });
     }
     ...
 }
@@ -131,11 +139,4 @@ Smooch.setSignedUpAt( (new Date).getTime() );
 Smooch.setUserProperties({"whenDidYouFsckUp": "aLongTimeAgo"});
 ```
 
-### Track an event
-```javascript
-Smooch.track("User tapped");
-```
-
 Learn more about the functions we've wrapped by checking out SmoochClient.js in the "lib" directory.
-
-![](https://media.giphy.com/media/h9KtiB6DgiS2s/giphy.gif)

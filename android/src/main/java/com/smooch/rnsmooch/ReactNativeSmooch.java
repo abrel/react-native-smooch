@@ -14,10 +14,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.smooch.core.Smooch;
+import io.smooch.core.SmoochCallback;
 import io.smooch.core.User;
+import io.smooch.core.Conversation;
+import io.smooch.core.Message;
+import io.smooch.core.FcmService;
 import io.smooch.ui.ConversationActivity;
 
-public class ReactNativeSmooch extends ReactContextBaseJavaModule {
+import android.util.Log;
+
+public class ReactNativeSmooch
+    extends ReactContextBaseJavaModule
+    implements Conversation.MessageModifierDelegate {
+
+    private ReactApplicationContext mContext;
+
     @Override
     public String getName() {
         return "SmoochManager";
@@ -25,26 +36,50 @@ public class ReactNativeSmooch extends ReactContextBaseJavaModule {
 
     public ReactNativeSmooch(ReactApplicationContext reactContext) {
         super(reactContext);
+        mContext = reactContext;
+        Smooch.getConversation().setMessageModifierDelegate(this);
     }
 
     @ReactMethod
-    public void login(String userId, String jwt) {
-        Smooch.login(userId, jwt);
+    public void triggerSmoochNotification(ReadableMap data) {
+        FcmService.triggerSmoochNotification(data.toHashMap(), mContext);
     }
 
     @ReactMethod
-    public void logout(String userId, String jwt) {
-        Smooch.logout();
+    public void login(String userId, String jwt, final Promise promise) {
+        Smooch.login(userId, jwt, new SmoochCallback() {
+            @Override
+            public void run(Response response) {
+                if (promise != null) {
+                    if (response.getError() != null) {
+                        promise.reject("" + response.getStatus(), response.getError());
+                        return;
+                    }
+
+                    promise.resolve(null);
+                }
+            }
+        });
+    }
+
+    @ReactMethod
+    public void logout(final Promise promise) {
+        Smooch.logout(new SmoochCallback() {
+            @Override
+            public void run(Response response) {
+                if (response.getError() != null) {
+                    promise.reject("" + response.getStatus(), response.getError());
+                    return;
+                }
+
+                promise.resolve(null);
+            }
+        });
     }
 
     @ReactMethod
     public void show() {
         ConversationActivity.show(getReactApplicationContext(), Intent.FLAG_ACTIVITY_NEW_TASK);
-    }
-
-    @ReactMethod
-    public void track(String event) {
-        Smooch.track(event);
     }
 
     @ReactMethod
@@ -92,4 +127,33 @@ public class ReactNativeSmooch extends ReactContextBaseJavaModule {
         return userProperties;
     }
 
+    @ReactMethod
+    public void sendMessage(String messageText) {
+      Message message = new Message(messageText, null, null);
+      Smooch.getConversation().sendMessage(message);
+    }
+
+    // Conversation delegates
+    @Override
+    public Message beforeSend(Message message) {
+      return message;
+    }
+
+    @Override
+    public Message beforeNotification(Message message) {
+      if (message.getText().startsWith("@@@")) {
+        return null;
+      }
+
+      return message;
+    }
+
+    @Override
+    public Message beforeDisplay(Message message) {
+      if (message.getText().startsWith("@@@")) {
+        return null;
+      }
+
+      return message;
+    }
 }

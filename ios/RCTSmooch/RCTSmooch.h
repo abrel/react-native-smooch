@@ -8,5 +8,7 @@
 #import <React/RCTUtils.h>
 #endif
 
+#import <Smooch/Smooch.h>
+
 @interface SmoochManager : NSObject <RCTBridgeModule>
 @end
